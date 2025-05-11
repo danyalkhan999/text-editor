@@ -1,0 +1,34 @@
+<div class="toolbar">
+    <div class="control-group">
+      <label for="fontFamily">Font Family</label>
+      <select id="fontFamily" (change)="onFontFamily($event)">
+        <option value="Arial">Arial</option>
+        <option value="Times New Roman">Times New Roman</option>
+        <option value="Courier New">Courier New</option>
+        <option value="Georgia">Georgia</option>
+        <option value="Verdana">Verdana</option>
+      </select>
+    </div>
+  
+    <div class="control-group">
+      <label for="fontSize">Font Size</label>
+      <select id="fontSize" (change)="onFontSize($event)">
+        <option value="12px">12px</option>
+        <option value="16px">16px</option>
+        <option value="20px">20px</option>
+        <option value="24px">24px</option>
+        <option value="32px">32px</option>
+      </select>
+      
+    </div>
+  </div>
+  
+  <div
+    class="editor-area"
+    contenteditable="true"
+    (keydown)="onKeyDown($event)"
+  >
+    <!-- initial placeholder text -->
+    <p>type here…</p>
+  </div>
+  
