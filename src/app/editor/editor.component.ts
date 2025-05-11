@@ -7,41 +7,47 @@ import { Component, OnInit, HostListener } from '@angular/core';
 })
 export class EditorComponent implements OnInit {
   ngOnInit() {
-    // enable CSS-based formatting (so fontSize uses px, not HTML size=1–7)
-    document.execCommand('styleWithCSS', false, 'true');
+    // No longer needed to enable CSS-based formatting with execCommand
   }
 
   onFontFamily(event: Event): void {
     const target = event.target as HTMLSelectElement; // Casting to HTMLSelectElement
     if (target) {
-      document.execCommand('fontName', false, target.value);
+      const fontFamily = target.value;
+      this.applyStyleToSelection('fontFamily', fontFamily);
     }
   }
 
   onFontSize(event: Event) {
     const target = event.target as HTMLSelectElement;
     const fontSize = target.value;
+    this.applyStyleToSelection('fontSize', fontSize);
+  }
 
+  private applyStyleToSelection(
+    styleProperty: keyof CSSStyleDeclaration,
+    styleValue: string
+  ) {
     const selection = window.getSelection();
     if (!selection || selection.rangeCount === 0) return;
 
     const range = selection.getRangeAt(0);
     if (range.collapsed) return; // nothing selected
 
-    // Create a span with desired font size
+    // Create a span to wrap the selected content with the style
     const span = document.createElement('span');
-    span.style.fontSize = fontSize;
+
+    // Type assertion to ensure TypeScript understands that we're working with a valid style property
+    (span.style as any)[styleProperty] = styleValue;
 
     // Wrap the selected content in the span
-    span.appendChild(range.extractContents());
-    range.deleteContents();
-    range.insertNode(span);
+    range.surroundContents(span);
 
-    // Move selection to after the inserted node
+    // Move the cursor to the end of the wrapped content after applying the style
     selection.removeAllRanges();
     const newRange = document.createRange();
-    newRange.selectNodeContents(span);
-    newRange.collapse(false);
+    newRange.setStartAfter(span);
+    newRange.collapse(true);
     selection.addRange(newRange);
   }
 
@@ -62,7 +68,16 @@ export class EditorComponent implements OnInit {
     // allow Ctrl+A to select all
     if (e.ctrlKey && e.key.toLowerCase() === 'a') {
       e.preventDefault();
-      document.execCommand('selectAll', false);
+      this.selectAll();
     }
+  }
+
+  private selectAll() {
+    const editorArea = document.querySelector('.editor-area')!;
+    const range = document.createRange();
+    range.selectNodeContents(editorArea);
+    const selection = window.getSelection();
+    selection?.removeAllRanges();
+    selection?.addRange(range);
   }
 }
